@@ -1,0 +1,3691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rimigo - Travel Itinerary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideDown 0.8s ease-out;
+        }
+
+        .logo {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .logo:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 40px rgba(255, 107, 107, 0.4);
+        }
+
+        .traveler-info {
+            text-align: center;
+            color: white;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .traveler-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .trip-details {
+            font-size: 16px;
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .hamburger {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .hamburger:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 3px 0;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger:hover span {
+            background: #ff6b6b;
+        }
+
+        /* Hamburger Menu Styles */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .menu-content {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 350px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 80px 30px 30px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .menu-overlay.active .menu-content {
+            transform: translateX(0);
+        }
+
+        .menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .menu-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .menu-item h3 {
+            color: white;
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-item h3::before {
+            content: attr(data-icon);
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .menu-item p {
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .submenu {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .submenu.active {
+            display: block;
+        }
+
+        .submenu-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .submenu-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .submenu-item h4 {
+            color: white;
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+
+        .submenu-item p {
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+            font-size: 12px;
+        }
+
+        /* Hotel Voucher Styles */
+        .hotel-voucher {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            z-index: 1000;
+            overflow-y: auto;
+            animation: slideInFromRight 0.5s ease-out;
+        }
+
+        .hotel-voucher.active {
+            display: block;
+        }
+
+        .voucher-container {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 80px auto 20px;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .confirmation-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .voucher-header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .company-details {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .voucher-content {
+            padding: 30px;
+        }
+        
+        .confirmation-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e8f4fd, #f0f8ff);
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .confirmation-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .booking-id {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .voucher-section {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 20px;
+        }
+        
+        .voucher-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .voucher-section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .voucher-section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background-color: #3498db;
+            margin-right: 10px;
+        }
+        
+        .voucher-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .voucher-info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .voucher-info-label {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .voucher-info-value {
+            color: #34495e;
+            font-size: 16px;
+        }
+        
+        .hotel-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .hotel-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .hotel-address {
+            color: #7f8c8d;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        
+        .price-breakdown {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .price-row.total {
+            border-top: 2px solid #3498db;
+            padding-top: 10px;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        
+        .room-details {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .rules-list {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid #f39c12;
+        }
+        
+        .rules-list p {
+            margin: 8px 0;
+            color: #7f8c8d;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .thank-you {
+            text-align: center;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .menu-content {
+                width: 100%;
+            }
+
+            .voucher-container {
+                margin: 60px 10px 20px;
+                padding: 15px;
+            }
+
+            .voucher-info-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .voucher-content {
+                padding: 20px;
+            }
+            
+            .voucher-header {
+                padding: 20px;
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .title {
+            color: white;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            animation: slideUp 1s ease-out 0.5s both;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 18px;
+            margin-bottom: 50px;
+            animation: slideUp 1s ease-out 0.7s both;
+        }
+
+        .destinations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .destination-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out both;
+        }
+
+        .destination-card:nth-child(1) { animation-delay: 0.9s; }
+        .destination-card:nth-child(2) { animation-delay: 1.1s; }
+        .destination-card:nth-child(3) { animation-delay: 1.3s; }
+        .destination-card:nth-child(4) { animation-delay: 1.5s; }
+
+        .destination-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .destination-card:hover::before {
+            left: 100%;
+        }
+
+        .destination-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .destination-name {
+            font-size: 28px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .destination-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            display: block;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+            position: relative;
+            z-index: 2;
+        }
+
+        .destination-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Floating elements */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-circle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .circle-1 {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .circle-2 {
+            width: 60px;
+            height: 60px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .circle-3 {
+            width: 80px;
+            height: 80px;
+            top: 40%;
+            left: 80%;
+            animation-delay: 4s;
+        }
+
+        /* Detail Page Styles */
+        .detail-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            z-index: 1000;
+            overflow-y: auto;
+            animation: slideInFromRight 0.5s ease-out;
+        }
+
+        .detail-page.active {
+            display: block;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #7011F6 0%, #4D1D91 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            z-index: 1001;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(112, 17, 246, 0.3);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(112, 17, 246, 0.4);
+        }
+
+        .detail-container {
+            max-width: 800px;
+            margin: 80px auto 0;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        /* Barcelona Detail Styles */
+        .barcelona-detail-header {
+            text-align: center;
+            background: linear-gradient(135deg, #7011F6 0%, #4D1D91 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: -20px -20px 20px -20px;
+        }
+
+        .barcelona-detail-header h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .barcelona-detail-header .subtitle {
+            font-size: 1.1em;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
+        /* Valencia Detail Styles */
+        .valencia-detail-header {
+            background: linear-gradient(135deg, #4D1D91 0%, #7011F6 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 15px;
+            margin: -20px -20px 20px -20px;
+        }
+
+        .valencia-detail-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-weight: 300;
+        }
+
+        .valencia-detail-header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        /* Ibiza Detail Styles */
+        .ibiza-detail-header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 20px;
+            border-radius: 15px;
+            margin: -20px -20px 25px -20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .ibiza-detail-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .ibiza-detail-header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        /* Madrid Detail Styles */
+        .madrid-detail-header {
+            background: linear-gradient(135deg, #7011F6 0%, #4D1D91 60%, #AB72FB 100%);
+            color: white;
+            padding: 60px 20px 30px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(112, 17, 246, 0.3);
+            border-radius: 15px;
+            margin: -20px -20px 20px -20px;
+        }
+
+        .madrid-detail-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #AB72FB 0%, #7011F6 50%, #4D1D91 100%);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .madrid-detail-header h1 {
+            margin: 0 0 10px 0;
+            font-size: clamp(24px, 6vw, 32px);
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .madrid-detail-header p {
+            margin: 0;
+            font-size: clamp(14px, 4vw, 18px);
+            opacity: 0.95;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .plane-icon {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            font-size: 24px;
+            opacity: 0.8;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Common Detail Styles */
+        .trip-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .info-box {
+            text-align: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #7011F6;
+            text-transform: uppercase;
+            font-size: 0.75em;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        .section {
+            margin: 30px 0;
+        }
+
+        .section h2 {
+            background: linear-gradient(135deg, #7011F6 0%, #4D1D91 100%);
+            color: white;
+            padding: 12px 15px;
+            margin: 0 0 15px 0;
+            border-radius: 8px;
+            font-size: 1.3em;
+            font-weight: 400;
+        }
+
+        .day {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 5px solid #7011F6;
+        }
+
+        .day h3 {
+            color: #7011F6;
+            margin: 0 0 15px 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .activity {
+            background: white;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid #AB72FB;
+        }
+
+        .activity h4 {
+            margin: 0 0 10px 0;
+            color: #4D1D91;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .time {
+            background: #7011F6;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 5px;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .icon {
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+
+        .details {
+            margin: 10px 0;
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+
+        .details strong {
+            color: #333;
+        }
+
+        .route {
+            background: #e3f2fd;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 3px solid #2196f3;
+            font-size: 0.9em;
+        }
+
+        .important {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+
+        .safety {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-top: 3px solid #7011F6;
+        }
+
+        .card h4 {
+            margin: 0 0 12px 0;
+            color: #7011F6;
+            font-size: 1em;
+        }
+
+        .metro-info {
+            background: linear-gradient(135deg, #7011F6 0%, #4D1D91 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .metro-info h4 {
+            color: white;
+            font-size: 1.1em;
+        }
+
+        .next-destination {
+            background: linear-gradient(135deg, #AB72FB 0%, #7011F6 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #7011F6 0%, #4D1D91 100%);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .curated {
+            font-style: italic;
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        ul {
+            padding-left: 18px;
+        }
+
+        li {
+            margin: 6px 0;
+            font-size: 0.95em;
+        }
+
+        /* Valencia specific styles */
+        .valencia-day-section {
+            margin-bottom: 25px;
+            border-left: 3px solid #AB72FB;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .valencia-day-header {
+            background: linear-gradient(135deg, #7011F6 0%, #AB72FB 100%);
+            color: white;
+            padding: 10px 15px;
+            margin: -10px 0 15px -18px;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .valencia-activity {
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 3px solid #7011F6;
+            transition: transform 0.2s ease;
+        }
+
+        .valencia-activity:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+
+        .valencia-activity-time {
+            background: #4D1D91;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.7rem;
+        }
+
+        .valencia-activity-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 6px;
+        }
+
+        .valencia-activity-description {
+            color: #5d6d7e;
+            margin-bottom: 8px;
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .restaurants {
+            background: #f5f0ff;
+            border-left: 4px solid #AB72FB;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .restaurants h4 {
+            color: #4D1D91;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .restaurants ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .restaurants li {
+            padding: 8px 0;
+            color: #7011F6;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .restaurants li:before {
+            content: "📍";
+            position: absolute;
+            left: 0;
+        }
+
+        .distance-info {
+            font-size: 0.85rem;
+            color: #4D1D91;
+            font-weight: 600;
+            background: rgba(112, 17, 246, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+            float: right;
+        }
+
+        .note {
+            background: #faf8ff;
+            border-left: 4px solid #AB72FB;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .note-title {
+            color: #4D1D91;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #AB72FB 0%, #7011F6 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .highlight h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .special-note {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Ibiza specific styles */
+        .ibiza-day-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .ibiza-activity {
+            margin-bottom: 20px;
+            padding: 18px;
+            border-left: 5px solid #667eea;
+            background: #f8f9ff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .time-badge {
+            background: #667eea;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .ibiza-activity-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .ibiza-activity-detail {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .route-section {
+            background: #f0f4ff;
+            border: 1px solid #d1d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 12px 0;
+        }
+
+        .route-title {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .route-step {
+            font-size: 13px;
+            color: #555;
+            margin: 6px 0;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .route-step::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .restaurants-section {
+            margin-top: 12px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .restaurant-list {
+            font-size: 13px;
+            color: #555;
+            margin: 8px 0;
+        }
+
+        .restaurant-item {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            margin: 4px 6px 4px 0;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .restaurant-item.veg {
+            background: #764ba2;
+        }
+
+        .warning-box {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #f57f17;
+            font-weight: 500;
+        }
+
+        .location-note {
+            background: #fff8e1;
+            border-left: 4px solid #ff9500;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #e65100;
+            line-height: 1.4;
+        }
+
+        .safety-section {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+
+        .safety-tip {
+            font-size: 14px;
+            color: #555;
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .safety-tip::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .bus-stops-section {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+
+        .bus-stop {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .bus-stop-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .bus-stop-detail {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .two-column {
+            display: block;
+        }
+
+        .column {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        /* Madrid specific styles */
+        .madrid-day-section {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .madrid-day-header {
+            background: linear-gradient(135deg, #AB72FB 0%, #7011F6 70%, #4D1D91 100%);
+            color: white;
+            padding: 20px 20px;
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .madrid-day-content {
+            background: linear-gradient(145deg, #fafbff 0%, #f0f4ff 100%);
+            padding: 20px;
+        }
+
+        .madrid-activity {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #7011F6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .madrid-activity:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .madrid-activity:last-child {
+            margin-bottom: 0;
+        }
+
+        .madrid-activity-time {
+            background: linear-gradient(135deg, #7011F6 0%, #4D1D91 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 12px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 3px 8px rgba(112, 17, 246, 0.3);
+        }
+
+        .madrid-activity-time::before {
+            content: '🕒';
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .madrid-activity-title {
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 12px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            line-height: 1.3;
+        }
+
+        .madrid-activity-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(45deg, #AB72FB, #7011F6);
+            border-radius: 50%;
+            margin-right: 12px;
+            box-shadow: 0 0 8px rgba(112, 17, 246, 0.4);
+            flex-shrink: 0;
+        }
+
+        .madrid-activity-details {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .route-box {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+            border: 2px solid #7011F6;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            font-size: 15px;
+            position: relative;
+        }
+
+        .route-box::before {
+            content: '🗺️';
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 20px;
+            opacity: 0.7;
+        }
+
+        .route-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7011F6 0%, #AB72FB 100%);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .route-title {
+            font-weight: 700;
+            color: #4D1D91;
+            margin-bottom: 8px;
+            font-size: 16px;
+            letter-spacing: 0.3px;
+        }
+
+        .distance-badge {
+            background: linear-gradient(135deg, #AB72FB 0%, #7011F6 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-block;
+            margin: 4px 8px 4px 0;
+            box-shadow: 0 2px 6px rgba(171, 114, 251, 0.3);
+        }
+
+        .distance-badge::before {
+            content: '📍';
+            margin-right: 6px;
+            font-size: 12px;
+        }
+
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        @media (min-width: 480px) {
+            .restaurant-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .restaurant-card {
+            background: linear-gradient(135deg, #fff8f5 0%, #fed7d7 100%);
+            border: 2px solid #fc8181;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 14px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(252, 129, 129, 0.15);
+            transition: transform 0.2s ease;
+        }
+
+        .restaurant-card:active {
+            transform: scale(0.97);
+        }
+
+        .restaurant-card::after {
+            content: '🍽️';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 18px;
+            opacity: 0.6;
+        }
+
+        .restaurant-name {
+            font-weight: 700;
+            color: #c53030;
+            margin-bottom: 6px;
+            font-size: 16px;
+            letter-spacing: 0.2px;
+            line-height: 1.3;
+        }
+
+        .restaurant-details {
+            color: #744210;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            border: 2px solid #48bb78;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #22543d;
+            margin: 16px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .highlight-box::before {
+            content: '🌱';
+            margin-right: 8px;
+            font-size: 20px;
+        }
+
+        .metro-badge {
+            background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+            border: 1px solid #cbd5e0;
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-size: 13px;
+            display: inline-block;
+            margin: 4px 6px 4px 0;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .metro-badge::before {
+            content: '🚇';
+            margin-right: 6px;
+        }
+
+        .section-divider {
+            height: 6px;
+            background: linear-gradient(90deg, #7011F6 0%, #AB72FB 33%, #4D1D91 66%, #7011F6 100%);
+            margin: 32px 0;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .section-divider::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 10px;
+            background: linear-gradient(135deg, #AB72FB 0%, #7011F6 100%);
+            border-radius: 6px;
+        }
+
+        .options-list {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .options-list strong {
+            color: #4D1D91;
+            font-size: 16px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .options-list ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .options-list li {
+            font-size: 15px;
+            margin-bottom: 6px;
+            color: #4a5568;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .dinner-options {
+            background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            position: relative;
+        }
+
+        .dinner-options::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .dinner-title {
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 12px;
+            font-size: 16px;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            line-height: 1.3;
+        }
+
+        .dinner-title::before {
+            content: '🍽️';
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        @keyframes slideInFromRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .title {
+                font-size: 36px;
+            }
+            
+            .destinations {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .destination-card {
+                padding: 25px;
+            }
+            
+            .traveler-name {
+                font-size: 20px;
+            }
+            
+            .trip-details {
+                font-size: 14px;
+            }
+
+            .detail-container {
+                margin: 60px 10px 0;
+                padding: 15px;
+                border-radius: 10px;
+            }
+
+            .valencia-detail-header, .barcelona-detail-header, .ibiza-detail-header, .madrid-detail-header {
+                padding: 15px;
+                margin: -15px -15px 15px -15px;
+            }
+
+            .valencia-detail-header h1, .barcelona-detail-header h1 {
+                font-size: 1.8em;
+            }
+
+            .trip-info {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 12px;
+            }
+
+            .section h2 {
+                font-size: 1.2em;
+                padding: 10px 12px;
+            }
+
+            .day {
+                padding: 15px;
+            }
+
+            .activity {
+                padding: 12px;
+            }
+
+            .activity h4 {
+                font-size: 1em;
+            }
+
+            .time {
+                font-size: 0.75em;
+                padding: 3px 8px;
+                margin-bottom: 8px;
+            }
+
+            .details {
+                font-size: 0.9em;
+            }
+
+            .route, .important, .safety {
+                font-size: 0.85em;
+                padding: 10px;
+            }
+
+            .card {
+                padding: 12px;
+            }
+
+            .metro-info {
+                padding: 12px;
+            }
+
+            .restaurant-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements">
+        <div class="floating-circle circle-1"></div>
+        <div class="floating-circle circle-2"></div>
+        <div class="floating-circle circle-3"></div>
+    </div>
+
+    <!-- Som Nit Triomf Voucher Page -->
+    <div class="hotel-voucher" id="somNitTriomfVoucher">
+        <button class="back-button" onclick="hideHotelVoucher()">← Back to Menu</button>
+        
+        <div class="voucher-container">
+            <div class="confirmation-container">
+                <div class="voucher-header" style="background: linear-gradient(135deg, #fc4a1a, #f7b733);">
+                    <div class="company-name">Viareel Travel Private Limited</div>
+                    <div class="company-details">
+                        Bangalore, Karnataka<br>
+                        Phone: +91 8793623693
+                    </div>
+                </div>
+                
+                <div class="voucher-content">
+                    <div class="confirmation-header" style="background: linear-gradient(135deg, #ffecd2, #fcb69f); border: 2px solid #f7b733;">
+                        <div class="confirmation-number">Confirmation No: 796417505</div>
+                        <div class="booking-id">Booking ID: tpu6m</div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title" style="color: #2c3e50;">🎯 Guest Information</div>
+                        <div class="voucher-info-grid">
+                            <div class="voucher-info-item" style="border-left: 4px solid #fc4a1a;">
+                                <div class="voucher-info-label">Guest Name</div>
+                                <div class="voucher-info-value">Miss NEHA JAIN</div>
+                            </div>
+                            <div class="voucher-info-item" style="border-left: 4px solid #fc4a1a;">
+                                <div class="voucher-info-label">Guest Type</div>
+                                <div class="voucher-info-value">Adult</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">📅 Booking Details</div>
+                        <div class="voucher-info-grid">
+                            <div class="voucher-info-item" style="border-left: 4px solid #fc4a1a;">
+                                <div class="voucher-info-label">Check-in Date</div>
+                                <div class="voucher-info-value">September 11, 2025</div>
+                            </div>
+                            <div class="voucher-info-item" style="border-left: 4px solid #fc4a1a;">
+                                <div class="voucher-info-label">Check-out Date</div>
+                                <div class="voucher-info-value">September 14, 2025</div>
+                            </div>
+                        </div>
+                        <div class="voucher-info-grid">
+                            <div class="voucher-info-item" style="border-left: 4px solid #fc4a1a;">
+                                <div class="voucher-info-label">Room Configuration</div>
+                                <div class="voucher-info-value">1 Room, 1 Adult</div>
+                            </div>
+                            <div class="voucher-info-item" style="border-left: 4px solid #fc4a1a;">
+                                <div class="voucher-info-label">Duration</div>
+                                <div class="voucher-info-value">3 Nights</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">🏨 Hotel Information</div>
+                        <div class="hotel-info" style="background: linear-gradient(135deg, #a8edea, #fed6e3); border: 2px solid #fed6e3;">
+                            <div class="hotel-name">🌟 Som Nit Triomf</div>
+                            <div class="hotel-address">
+                                📍 Carrer de Trafalgar, 39, 4<br>
+                                Barcelona, Spain<br>
+                                📞 Phone: +34 93-4638167
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">🛏️ Room & Pricing Details</div>
+                        <div class="room-details" style="background: linear-gradient(135deg, #e0c3fc, #9bb5ff); border-left: 4px solid #9bb5ff;">
+                            <strong>Room 1:</strong> Double or Twin Bed with Balcony<br>
+                            <strong>Meal Plan:</strong> Room Only<br>
+                            <strong>Description:</strong> Room, Double or Twin Bed, Balcony
+                        </div>
+                        
+                        <div class="price-breakdown" style="background: linear-gradient(135deg, #d4fc79, #96e6a1); border: 2px solid #96e6a1;">
+                            <div class="price-row">
+                                <span>Base Rate</span>
+                                <span>₹51,160.95</span>
+                            </div>
+                            <div class="price-row">
+                                <span>Taxes and Fees</span>
+                                <span>₹5,339.05</span>
+                            </div>
+                            <div class="price-row total" style="border-top: 3px solid #27ae60;">
+                                <span>Total Price</span>
+                                <span>₹56,500.00</span>
+                            </div>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #f3e5f5, #e1bee7); padding: 20px; border-radius: 8px; border-left: 4px solid #9c27b0; margin-top: 15px;">
+                            <h4 style="margin-top: 0; color: #7b1fa2; font-size: 16px;">💳 Additional Charges (Payable at Hotel)</h4>
+                            <div style="font-size: 16px; font-weight: bold; color: #7b1fa2;">
+                                ₹1,677.45 INR for Taxes and Fees to be paid at hotel
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">📋 Check-in Instructions</div>
+                        
+                        <div style="background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; padding: 15px; border-radius: 8px; margin: 10px 0; font-weight: bold; text-align: center;">
+                            ⏰ Front Desk Hours: 7:00 AM - 8:00 PM Daily<br>
+                            ⚠️ NO AFTER-HOURS CHECK-IN AVAILABLE
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #fff7e6, #ffe0b3); padding: 25px; border-radius: 10px; border: 2px solid #ff9800; margin-bottom: 20px;">
+                            <h4 style="margin-top: 0; color: #e65100; font-size: 18px; margin-bottom: 15px;">🔑 Pre-Arrival Requirements</h4>
+                            
+                            <div style="margin-bottom: 20px; padding: 15px; background: rgba(255, 152, 0, 0.1); border-radius: 6px; border-left: 4px solid #ff9800;">
+                                <div style="font-weight: bold; color: #e65100; margin-bottom: 10px; font-size: 15px;">📞 Contact Property (48 Hours Before)</div>
+                                <div style="color: #5d4037; line-height: 1.5; font-size: 14px;">
+                                    You must contact the property at least 48 hours before arrival using the booking confirmation information to arrange check-in.
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px; padding: 15px; background: rgba(255, 152, 0, 0.1); border-radius: 6px; border-left: 4px solid #ff9800;">
+                                <div style="font-weight: bold; color: #e65100; margin-bottom: 10px; font-size: 15px;">💻 Online Registration Required</div>
+                                <div style="color: #5d4037; line-height: 1.5; font-size: 14px;">
+                                    Complete online registration via secure link before arrival. You'll receive an email 24 hours before arrival with check-in instructions and smart lock details.
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px; padding: 15px; background: rgba(255, 152, 0, 0.1); border-radius: 6px; border-left: 4px solid #ff9800;">
+                                <div style="font-weight: bold; color: #e65100; margin-bottom: 10px; font-size: 15px;">💳 Check-in Requirements</div>
+                                <div style="color: #5d4037; line-height: 1.5; font-size: 14px;">
+                                    • Government-issued photo ID required<br>
+                                    • <strong>Credit card used for booking must be presented by cardholder</strong><br>
+                                    • Credit card, debit card, or cash deposit may be required for incidental charges
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">💰 Fees & Charges</div>
+                        
+                        <div style="background: linear-gradient(135deg, #ffebee, #ffcdd2); padding: 20px; border-radius: 8px; border-left: 4px solid #f44336; margin-bottom: 20px;">
+                            <h4 style="margin-top: 0; color: #c62828; font-size: 16px;">🏛️ Mandatory City Tax</h4>
+                            <div style="background: rgba(244, 67, 54, 0.1); padding: 12px; margin: 10px 0; border-radius: 6px; border-left: 3px solid #f44336;">
+                                <strong>Barcelona City Tax:</strong> €4.13 per person, per night (up to 7 nights)<br>
+                                <em>Children under 17 years exempt</em>
+                            </div>
+                            <div style="background: rgba(244, 67, 54, 0.1); padding: 12px; margin: 10px 0; border-radius: 6px; border-left: 3px solid #f44336;">
+                                <strong>Mandatory Tax:</strong> $19.10 USD
+                            </div>
+                        </div>
+                        
+                        <div style="background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; padding: 15px; border-radius: 8px; margin: 10px 0; font-weight: bold; text-align: center;">
+                            💸 NON-REFUNDABLE RATE<br>
+                            Cash transactions cannot exceed €1,000 (national regulation)
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">ℹ️ Extra Guest Information</div>
+                        <div class="rules-list">
+                            <p>• Extra beds for additional guests are subject to availability and may incur charges</p>
+                            <p>• Bed type is subject to availability</p>
+                            <p>• Extra-person charges may apply based on property policy</p>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">💳 Payment Details</div>
+                        <p style="color: #7f8c8d; font-style: italic;">Payment information processed separately. Fees payable at property will be collected in local currency (EUR).</p>
+                    </div>
+                    
+                    <div class="thank-you" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                        Thank you for booking with us. Have a great stay in Barcelona! 🇪🇸✨
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hotel Royal Plaza Voucher Page -->
+    <div class="hotel-voucher" id="hotelRoyalPlazaVoucher">
+        <button class="back-button" onclick="hideHotelVoucher()">← Back to Menu</button>
+        
+        <div class="voucher-container">
+            <div class="confirmation-container">
+                <div class="voucher-header" style="background: linear-gradient(135deg, #8e44ad, #3498db);">
+                    <div class="company-name">Viareel Travel Private Limited</div>
+                    <div class="company-details">
+                        Bangalore, Karnataka<br>
+                        Phone: +91 8793623693
+                    </div>
+                </div>
+                
+                <div class="voucher-content">
+                    <div class="confirmation-header" style="background: linear-gradient(135deg, #f8e8ff, #e8f4fd); border-left: 4px solid #8e44ad;">
+                        <div class="confirmation-number">Confirmation No: 51487639</div>
+                        <div class="booking-id">Booking ID: tpu70</div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title" style="color: #2c3e50;">Guest Information</div>
+                        <div class="voucher-info-grid">
+                            <div class="voucher-info-item" style="border-left: 3px solid #8e44ad;">
+                                <div class="voucher-info-label">Guest Name</div>
+                                <div class="voucher-info-value">Miss NEHA JAIN</div>
+                            </div>
+                            <div class="voucher-info-item" style="border-left: 3px solid #8e44ad;">
+                                <div class="voucher-info-label">Guest Type</div>
+                                <div class="voucher-info-value">Adult</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Booking Details</div>
+                        <div class="voucher-info-grid">
+                            <div class="voucher-info-item" style="border-left: 3px solid #8e44ad;">
+                                <div class="voucher-info-label">Check-in Date</div>
+                                <div class="voucher-info-value">September 14, 2025</div>
+                            </div>
+                            <div class="voucher-info-item" style="border-left: 3px solid #8e44ad;">
+                                <div class="voucher-info-label">Check-out Date</div>
+                                <div class="voucher-info-value">September 16, 2025</div>
+                            </div>
+                        </div>
+                        <div class="voucher-info-grid">
+                            <div class="voucher-info-item" style="border-left: 3px solid #8e44ad;">
+                                <div class="voucher-info-label">Room Configuration</div>
+                                <div class="voucher-info-value">1 Room, 1 Adult</div>
+                            </div>
+                            <div class="voucher-info-item" style="border-left: 3px solid #8e44ad;">
+                                <div class="voucher-info-label">Duration</div>
+                                <div class="voucher-info-value">2 Nights</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Hotel Information</div>
+                        <div class="hotel-info" style="background: linear-gradient(135deg, #ffeaa7, #fdcb6e); color: #2d3436;">
+                            <div class="hotel-name">🏨 Hotel Royal Plaza</div>
+                            <div class="hotel-address">
+                                Pere Francès 27-29<br>
+                                Ibiza Town, Ibiza, Spain<br>
+                                📞 Phone: +34 971-310000
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Room Details</div>
+                        <div class="room-details" style="background: #e3f2fd; border-left: 3px solid #2196f3;">
+                            <strong>Room 1:</strong> Single Room<br>
+                            <strong>Meal Plan:</strong> Bed & Breakfast<br>
+                            <strong>Description:</strong> Single
+                        </div>
+                        
+                        <div class="price-breakdown" style="border-left: 4px solid #27ae60;">
+                            <div class="price-row">
+                                <span>Base Rate</span>
+                                <span>₹22,767.57</span>
+                            </div>
+                            <div class="price-row">
+                                <span>Taxes and Fees</span>
+                                <span>₹432.43</span>
+                            </div>
+                            <div class="price-row total">
+                                <span>Total Price</span>
+                                <span>₹23,200.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Essential Hotel Information</div>
+                        
+                        <div style="background: #fff3e0; padding: 20px; border-radius: 6px; border-left: 4px solid #ff9800; margin-bottom: 15px;">
+                            <h4 style="margin-top: 0; color: #e65100; font-size: 16px;">📋 General Hotel Policies (January 1 - December 31, 2025)</h4>
+                            
+                            <div style="margin-bottom: 15px; padding: 12px; background: rgba(255, 152, 0, 0.1); border-radius: 4px; font-size: 13px; line-height: 1.4;">
+                                <strong>🍽️ Meals & Dining:</strong><br>
+                                Half board doesn't include drinks (Media pensión no incluye bebidas)
+                            </div>
+                            
+                            <div style="margin-bottom: 15px; padding: 12px; background: rgba(255, 152, 0, 0.1); border-radius: 4px; font-size: 13px; line-height: 1.4;">
+                                <strong>🧖‍♀️ Spa Services:</strong><br>
+                                Sauna and Jacuzzi cost €20 per person (Sauna y jacuzzi tienen un coste de 20 euros por persona)
+                            </div>
+                            
+                            <div style="margin-bottom: 15px; padding: 12px; background: rgba(255, 152, 0, 0.1); border-radius: 4px; font-size: 13px; line-height: 1.4;">
+                                <strong>👶 Age Policy:</strong><br>
+                                Children under 18 must be accompanied by an adult (No se admitirán menores de 18 años sin un adulto)
+                            </div>
+                            
+                            <div style="margin-bottom: 15px; padding: 12px; background: rgba(255, 152, 0, 0.1); border-radius: 4px; font-size: 13px; line-height: 1.4;">
+                                <strong>🅿️ Parking:</strong><br>
+                                Free parking available, subject to availability (Parking gratis, siempre bajo disponibilidad)
+                            </div>
+                            
+                            <div style="margin-bottom: 15px; padding: 12px; background: rgba(255, 152, 0, 0.1); border-radius: 4px; font-size: 13px; line-height: 1.4;">
+                                <strong>🕐 Check-in/Check-out:</strong><br>
+                                <span style="background-color: #fff9c4; padding: 2px 4px; border-radius: 3px;">Check-in: 4:00 PM (16:00)</span><br>
+                                <span style="background-color: #fff9c4; padding: 2px 4px; border-radius: 3px;">Check-out: 12:00 PM (12:00)</span>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #fff3e0; padding: 20px; border-radius: 6px; border-left: 4px solid #ff9800; margin-bottom: 15px;">
+                            <h4 style="margin-top: 0; color: #e65100; font-size: 16px;">📅 Booking Specific Information (September 14-15, 2025)</h4>
+                            <div style="margin-bottom: 15px; padding: 12px; background: rgba(255, 152, 0, 0.1); border-radius: 4px; font-size: 13px; line-height: 1.4;">
+                                <strong>✅ Free Cancellation:</strong><br>
+                                Cancellations can be made free of charge up to one hour after confirmation
+                                (Cancelaciones hasta una hora después de la confirmación sin gastos)
+                            </div>
+                        </div>
+                        
+                        <div style="background: #ffebee; padding: 15px; border-radius: 6px; border-left: 3px solid #f44336; margin-top: 10px;">
+                            <strong>🏛️ City Tax Notice:</strong><br>
+                            City tax is NOT included in the rate. Direct payment at the hotel is compulsory (charged per person/night). Please contact the hotel for further information.
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Extra Guest Information</div>
+                        <div class="rules-list">
+                            <p>• We don't guarantee an Extra Bed for Extra guests - subject to hotel availability and may be chargeable</p>
+                            <p>• Bed type is subject to availability</p>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Payment Details</div>
+                        <p style="color: #7f8c8d; font-style: italic;">Payment information processed separately</p>
+                    </div>
+                    
+                    <div class="thank-you" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
+                        Thank you for booking with us. Have a great stay in Ibiza! 🏖️✈️
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Overlay -->
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-content">
+            <button class="menu-close" onclick="closeMenu()">×</button>
+            
+            <div class="menu-item" onclick="toggleSubmenu('hotelVouchers')">
+                <h3 data-icon="🏨">Hotel Vouchers</h3>
+                <p>View your hotel booking confirmations</p>
+                <div class="submenu" id="hotelVouchers">
+                    <div class="submenu-item" onclick="showHotelVoucher('somNitTriomf')">
+                        <h4>Som Nit Triomf</h4>
+                        <p>September 11-14, 2025 • Barcelona</p>
+                    </div>
+                    <div class="submenu-item" onclick="showHotelVoucher('hotelRoyalPlaza')">
+                        <h4>Hotel Royal Plaza</h4>
+                        <p>September 14-16, 2025 • Ibiza</p>
+                    </div>
+                    <div class="submenu-item" onclick="showHotelVoucher('luzMadrid')">
+                        <h4>Luz Madrid</h4>
+                        <p>September 19-21, 2025 • Madrid</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                <h3 data-icon="✈️">Flight Details</h3>
+                <p>View your flight confirmations</p>
+            </div>
+            
+            <div class="menu-item">
+                <h3 data-icon="🎫">Activity Bookings</h3>
+                <p>Tour and activity confirmations</p>
+            </div>
+            
+            <div class="menu-item">
+                <h3 data-icon="📞">Emergency Contacts</h3>
+                <p>Important numbers for your trip</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hotel Voucher Page -->
+    <div class="hotel-voucher" id="luzMadridVoucher">
+        <button class="back-button" onclick="hideHotelVoucher()">← Back to Menu</button>
+        
+        <div class="voucher-container">
+            <div class="confirmation-container">
+                <div class="voucher-header">
+                    <div class="company-name">Viareel Travel Private Limited</div>
+                    <div class="company-details">
+                        Bangalore, Karnataka<br>
+                        Phone: +91 8793623693
+                    </div>
+                </div>
+                
+                <div class="voucher-content">
+                    <div class="confirmation-header">
+                        <div class="confirmation-number">Confirmation No: 14663181338</div>
+                        <div class="booking-id">Booking ID: tpuoq</div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Guest Information</div>
+                        <div class="voucher-info-grid">
+                            <div class="voucher-info-item">
+                                <div class="voucher-info-label">Guest Name</div>
+                                <div class="voucher-info-value">Miss NEHA JAIN</div>
+                            </div>
+                            <div class="voucher-info-item">
+                                <div class="voucher-info-label">Guest Type</div>
+                                <div class="voucher-info-value">Adult</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Booking Details</div>
+                        <div class="voucher-info-grid">
+                            <div class="voucher-info-item">
+                                <div class="voucher-info-label">Check-in Date</div>
+                                <div class="voucher-info-value">September 19, 2025</div>
+                            </div>
+                            <div class="voucher-info-item">
+                                <div class="voucher-info-label">Check-out Date</div>
+                                <div class="voucher-info-value">September 21, 2025</div>
+                            </div>
+                        </div>
+                        <div class="voucher-info-grid">
+                            <div class="voucher-info-item">
+                                <div class="voucher-info-label">Room Configuration</div>
+                                <div class="voucher-info-value">1 Room, 1 Adult</div>
+                            </div>
+                            <div class="voucher-info-item">
+                                <div class="voucher-info-label">Duration</div>
+                                <div class="voucher-info-value">2 Nights</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Hotel Information</div>
+                        <div class="hotel-info">
+                            <div class="hotel-name">Luz Madrid Rooms</div>
+                            <div class="hotel-address">
+                                Calle de las Fuentes, 10, 3º Izq y Dcha<br>
+                                Madrid, Spain<br>
+                                Phone: +34 915420759
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Room Details</div>
+                        <div class="room-details">
+                            <strong>Room 1:</strong> Standard Double Room, Private Bathroom<br>
+                            <strong>Meal Plan:</strong> Room Only
+                        </div>
+                        
+                        <div class="price-breakdown">
+                            <div class="price-row">
+                                <span>Base Rate</span>
+                                <span>₹27,347.91</span>
+                            </div>
+                            <div class="price-row">
+                                <span>Taxes and Fees</span>
+                                <span>₹4,552.09</span>
+                            </div>
+                            <div class="price-row total">
+                                <span>Total Price</span>
+                                <span>₹31,900.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Hotel Rules & Extra Guest Info</div>
+                        <div class="rules-list">
+                            <p>• We don't guarantee an Extra Bed for Extra guests, it is subject to availability of the hotel and may be chargeable as well.</p>
+                            <p>• Bed type is subject to the availability.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="voucher-section">
+                        <div class="voucher-section-title">Payment Details</div>
+                        <p style="color: #7f8c8d; font-style: italic;">Payment information processed separately</p>
+                    </div>
+                    
+                    <div class="thank-you">
+                        Thank you for booking with us. Have a great stay! ✈️
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Landing Page -->
+    <div class="container" id="mainPage">
+        <header class="header">
+            <div class="logo">R</div>
+            
+            <div class="traveler-info">
+                <div class="traveler-name">Neha Jain (Solo)</div>
+                <div class="trip-details">11 - 21 Sept</div>
+            </div>
+            
+            <div class="hamburger" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <h1 class="title">Your Spanish Adventure</h1>
+            <p class="subtitle">Discover the vibrant culture and stunning landscapes of Spain</p>
+            
+            <div class="destinations">
+                <div class="destination-card" onclick="showDestinationDetail('Barcelona')">
+                    <div class="destination-icon">🏛️</div>
+                    <div class="destination-name">Barcelona</div>
+                    <div class="destination-description">Experience Gaudí's masterpieces and vibrant street life</div>
+                </div>
+                
+                <div class="destination-card" onclick="showDestinationDetail('Ibiza')">
+                    <div class="destination-icon">🏖️</div>
+                    <div class="destination-name">Ibiza</div>
+                    <div class="destination-description">Relax on pristine beaches and enjoy the island vibe</div>
+                </div>
+                
+                <div class="destination-card" onclick="showDestinationDetail('Valencia')">
+                    <div class="destination-icon">🥘</div>
+                    <div class="destination-name">Valencia</div>
+                    <div class="destination-description">Savor authentic paella and explore historic architecture</div>
+                </div>
+                
+                <div class="destination-card" onclick="showDestinationDetail('Madrid')">
+                    <div class="destination-icon">🎨</div>
+                    <div class="destination-name">Madrid</div>
+                    <div class="destination-description">Immerse yourself in world-class museums and culture</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Barcelona Detail Page -->
+    <div class="detail-page" id="barcelonaDetail">
+        <button class="back-button" onclick="hideDestinationDetail()">← Back to Overview</button>
+        
+        <div class="detail-container">
+            <div class="barcelona-detail-header">
+                <h1>🏛️ BARCELONA</h1>
+                <div class="subtitle">Solo Adventure</div>
+            </div>
+            
+            <div class="trip-info">
+                <div class="info-box">
+                    <div class="info-label">Duration</div>
+                    <div class="info-value">3 Days / 2 Nights</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">Travel Style</div>
+                    <div class="info-value">Solo Adventure</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">Dates</div>
+                    <div class="info-value">September 11-13, 2024</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">Hotel</div>
+                    <div class="info-value">Som Nit Triomf</div>
+                </div>
+            </div>
+
+            <!-- TRANSPORT INFORMATION SECTION -->
+            <div class="section">
+                <h2>🚇 TRANSPORT INFORMATION</h2>
+                
+                <div class="metro-info">
+                    <h4 style="color: white;">🚇 Hotel Metro Access - Som Nit Triomf</h4>
+                    <div class="details" style="color: white;">
+                        <strong style="color: white;">Nearest Metro Station:</strong><br>
+                        Arc de Triomf (L1 Red Line) - 4-minute walk (460m)<br><br>
+                        <strong style="color: white;">Alternative Stations:</strong><br>
+                        Plaça de Catalunya (L1, L3) - 10-minute walk (820m)<br><br>
+                        <strong style="color: white;">Hotel Address:</strong><br>
+                        Near Arc de Triomf - central Eixample location
+                    </div>
+                </div>
+                
+                <div class="metro-info">
+                    <h4 style="color: white;">🚇 T-casual Metro Card - Your Barcelona Transport</h4>
+                    <div class="details" style="color: white;">
+                        <strong style="color: white;">What is it:</strong> 10-journey card for all Barcelona public transport<br>
+                        <strong style="color: white;">Price:</strong> €11.35 (perfect for 3-day solo trip)<br>
+                        <strong style="color: white;">Works on:</strong> Metro, Bus, Tram, FGC trains (Zone 1)<br>
+                        <strong style="color: white;">Buy at:</strong> Any metro station or tobacco shop
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🍽️ NEARBY RESTAURANTS</h2>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h4>🥗 Funky Deli</h4>
+                        <div class="details">
+                            <strong>Walking Distance:</strong> 10 minutes from hotel<br>
+                            <strong>Cuisine:</strong> Fresh, healthy options & deli favorites<br>
+                            <strong>Perfect for:</strong> Quick breakfast or light lunch
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🌱 Vegetalia Born</h4>
+                        <div class="details">
+                            <strong>Walking Distance:</strong> 15 minutes from hotel<br>
+                            <strong>Cuisine:</strong> Restaurant vegetarià Barcelona<br>
+                            <strong>Perfect for:</strong> Vegetarian & vegan dining
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🌍 La Foga</h4>
+                        <div class="details">
+                            <strong>Walking Distance:</strong> 2 minutes from Arc de Triomf<br>
+                            <strong>Cuisine:</strong> International cuisine with diverse menu<br>
+                            <strong>Perfect for:</strong> Cozy atmosphere, excellent variety & service
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📅 DAILY ITINERARY</h2>
+                
+                <div class="day">
+                    <h3>Day 1 - September 11 • Arrival & Barcelona Icons</h3>
+                    
+                    <div class="activity">
+                        <h4><span class="time">08:50 - 13:00</span><span class="icon">✈️</span>Airport Arrival & Transfer</h4>
+                        <div class="details">
+                            <strong>Arrival:</strong> Barcelona Airport at 08:50 AM<br>
+                            <strong>Transfer:</strong> Pre-booked airport transfer to hotel<br>
+                            <strong>Hotel Check-in:</strong> Som Nit Triomf - rest and freshen up
+                        </div>
+                    </div>
+                    
+                    <div class="activity">
+                        <h4><span class="time">15:00 - 17:15</span><span class="icon">🏛</span>Barcelona Icons Walking Tour</h4>
+                        <div class="details">
+                            <div class="route">
+                                <strong>Arc de Triomf → Passeig de Gràcia:</strong><br>
+                                Walk 12-13 min via Plaça de Catalunya OR Metro L1 to Urquinaona → Change to L4 → Passeig de Gràcia
+                            </div>
+                            <div class="route">
+                                <strong>Passeig de Gràcia → Park Güell:</strong><br>
+                                Metro L3 (Green Line) to Lesseps (6 stops, 15 min) + 15-min uphill walk
+                            </div>
+                            <div class="important">
+                                <strong>⚠️ Important:</strong> Must visit Park Güell before 17:30 (5:30 PM) - plan accordingly
+                            </div>
+                            <div class="route">
+                                <strong>Park Güell → Sercotel Rooftop:</strong><br>
+                                Walk down to Vallcarca metro (15 min) → Metro L3 (Green) to Diagonal → Change to L5 (Blue) → Sagrada Família → Walk 5 min to Sercotel Rossellon
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity">
+                        <h4><span class="time">19:00+</span><span class="icon">🌅</span>Sercotel Rossellon Rooftop</h4>
+                        <div class="details">
+                            <strong>Location:</strong> Sercotel Rossellon Hotel (200m from Sagrada Família) - Rooftop terrace with 360° city views<br>
+                            <strong>Arrival:</strong> Arrive after 7:00 PM for evening views and dinner - Reservation required<br>
+                            <strong>Experience:</strong> Panoramic Barcelona cityscape with dinner & stunning Sagrada Família views<br>
+                            <div class="safety">
+                                <strong>Solo Travel Tip:</strong> Well-lit, safe route via Diagonal metro station - popular evening destination
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="day">
+                    <h3>Day 2 - September 12 • Sagrada Família & Montserrat</h3>
+                    
+                    <div class="activity">
+                        <h4><span class="time">08:00 - 18:30</span><span class="icon">⛪</span>Sagrada Família & Montserrat Tour</h4>
+                        <div class="details">
+                            <strong>Full Day Tour:</strong> Pre-booked guided tour with pickup included<br>
+                            <strong>Duration:</strong> Complete day experience returning by evening<br>
+                            <div class="important">
+                                <strong>ℹ️ Tour Day:</strong> Full day tour with pickup included. Pack comfortable shoes and camera for the day.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity">
+                        <h4><span class="time">21:00</span><span class="icon">🌊</span>Opium Barcelona Dinner</h4>
+                        <div class="details">
+                            <strong>Restaurant:</strong> Opium Barcelona - beachfront dining experience<br>
+                            <div class="route">
+                                <strong>Route from Hotel:</strong><br>
+                                Walk to Arc de Triomf metro (4 min) → Metro L4 (Yellow Line) to Barceloneta (4 stops, 8 min) → Walk 7 min to restaurant<br>
+                                <strong>Total Journey:</strong> Approximately 20 minutes from hotel
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="day">
+                    <h3>Day 3 - September 13 • Costa Brava & Medieval Villages</h3>
+                    
+                    <div class="activity">
+                        <h4><span class="time">08:00 - 08:15</span><span class="icon">📍</span>Tour Pickup</h4>
+                        <div class="details">
+                            <strong>Meeting Point:</strong> C/ Palau de la Música, 1, Ciutat Vella<br>
+                            <div class="route">
+                                <strong>Route from Hotel:</strong><br>
+                                550m walk (6-10 minutes) OR Metro L1 (Red Line) from Arc de Triomf → Urquinaona (1 stop) + 3-min walk
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity">
+                        <h4><span class="time">08:30 - 19:00</span><span class="icon">🏰</span>Costa Brava & Medieval Villages</h4>
+                        <div class="details">
+                            <strong>Tour Type:</strong> Small group tour with lunch included<br>
+                            <strong>Duration:</strong> Full day coastal and village experience
+                        </div>
+                    </div>
+                    
+                    <div class="activity">
+                        <h4><span class="time">20:00</span><span class="icon">🍽</span>Farewell Dinner Options</h4>
+                        <div class="details">
+                            <strong>El Nacional Barcelona:</strong><br>
+                            Passeig de Gràcia, 24 Bis - 18-min walk from hotel OR Metro L1 (Red) from Arc de Triomf → Urquinaona → Change to L4 (Yellow) → Passeig de Gràcia<br><br>
+                            
+                            <strong>Walking Options:</strong><br>
+                            The restaurant is walkable for a pleasant evening stroll after your tour
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ESSENTIAL INFO SECTION -->
+            <div class="section">
+                <h2>💡 SOLO TRAVEL ESSENTIALS</h2>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h4>📱 Must-Have Apps</h4>
+                        <div class="details">
+                            <strong>TMB App:</strong> Official Barcelona metro app with real-time info<br>
+                            <strong>Google Translate:</strong> Camera translation for menus and signs<br>
+                            <strong>Citymapper:</strong> Best navigation for Barcelona public transport
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>💰 Money & Safety</h4>
+                        <div class="details">
+                            <strong>Currency:</strong> Euro (€) - cards widely accepted<br>
+                            <strong>Pickpockets:</strong> Be cautious in tourist areas, especially Las Ramblas<br>
+                            <strong>Dining Times:</strong> Lunch 14:00-16:00, Dinner 21:00-23:00 (Spanish schedule)
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🚨 Emergency Numbers</h4>
+                        <div class="details">
+                            <strong>112:</strong> All emergencies (police, fire, ambulance) - Multilingual support<br>
+                            <strong>061:</strong> Medical emergencies (ambulance)<br>
+                            <strong>091:</strong> National Police (theft, robbery)<br>
+                            <strong>092:</strong> Local Police (Guàrdia Urbana)<br>
+                            <strong>080:</strong> Fire brigade<br>
+                            <strong>902 102 112:</strong> Tourist police helpline (English support, 9am–9pm)
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🛡 Solo Female Traveler Safety</h4>
+                        <div class="details">
+                            ✓ Download offline maps & screenshots<br>
+                            ✓ Keep cash for backup transport<br>
+                            ✓ Inform hotel about evening plans<br>
+                            ✓ Use well-lit stops & populated areas<br>
+                            ✓ Share location with trusted contacts
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEXT DESTINATION -->
+            <div class="next-destination">
+                <h3>✈️ Next Stop: Ibiza</h3>
+                <p><strong>Flight:</strong> Barcelona (BCN) → Ibiza (IBZ)</p>
+                <p><strong>Transfer:</strong> Pre Book airport transfer from hotel</p>
+            </div>
+
+            <div class="footer">
+                <h3>¡Buen Viaje, Neha!</h3>
+                <p>Enjoy your Barcelona solo adventure!</p>
+                <div class="curated">Curated with ❤️ by Rimigo<br>Your trusted travel companion</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Valencia Detail Page -->
+    <div class="detail-page" id="valenciaDetail">
+        <button class="back-button" onclick="hideDestinationDetail()">← Back to Overview</button>
+        
+        <div class="detail-container">
+            <div class="valencia-detail-header">
+                <h1>✈️ Neha's Solo Adventure</h1>
+                <div class="subtitle">From Ibiza → Valencia | September 17-18, 2025</div>
+                
+                <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; margin-top: 15px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 8px;">
+                        <div style="font-size: 0.7rem; line-height: 1.3;">
+                            <strong>🏨 Stay</strong><br>
+                            Silken Puerta Valencia<br>
+                            Av del Cardenal Benlloch, 28
+                        </div>
+                        <div style="font-size: 0.7rem; line-height: 1.3;">
+                            <strong>🎫 Metro Card</strong><br>
+                            Suma 10<br>
+                            Multi-ride transport card
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="font-size: 0.7rem; line-height: 1.3;">
+                            <strong>🚇 Nearest Metro</strong><br>
+                            Aragón Station (Line 5)<br>
+                            10 min walk
+                        </div>
+                        <div style="font-size: 0.7rem; line-height: 1.3;">
+                            <strong>🚌 Nearest Bus Stop</strong><br>
+                            Cardenal Benlloch (Parell) - Port<br>
+                            2 min walk
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Day 7 -->
+            <div class="valencia-day-section">
+                <div class="valencia-day-header">
+                    📅 Day 7: Ibiza → Valencia | September 17th
+                </div>
+                
+                <div class="valencia-activity">
+                    <div class="valencia-activity-time">🕘 08:30</div>
+                    <div class="valencia-activity-title">🏨 Hotel Check Out</div>
+                    <div class="valencia-activity-description">Hotel Check out & Depart for Ibiza Airport</div>
+                    
+                    <div class="note">
+                        <div class="note-title">Transportation:</div>
+                        Use Uber/Taxis for airport transfer
+                    </div>
+                </div>
+                
+                <div class="valencia-activity">
+                    <div class="valencia-activity-time">🕘 11:55 AM - 🕘 12:45 PM</div>
+                    <div class="valencia-activity-title">✈️ Flight to Valencia</div>
+                    <div class="valencia-activity-description">Fly from Ibiza to Valencia</div>
+                    
+                    <div class="note">
+                        <div class="note-title">Airport Transfer:</div>
+                        Use Uber/Taxis from Valencia airport to hotel
+                    </div>
+                </div>
+                
+                <div class="valencia-activity">
+                    <div class="valencia-activity-time">🕘 14:30</div>
+                    <div class="valencia-activity-title">🏨 Hotel Check In & Lunch</div>
+                    <div class="valencia-activity-description">Hotel Check In & Relax, Lunch at nearby vegetarian places</div>
+                    
+                    <div class="restaurants">
+                        <h4>🍽️ Vegetarian Lunch Options (Within 15 min walk):</h4>
+                        <ul>
+                            <li>Samsha (FAMOUS Mediterranean Restaurant)<br>
+                                <small>Plaça del Periodista Ros Belda, 4</small>
+                                <span class="distance-info">3 min walk</span>
+                            </li>
+                            <li>Maybean Healthy Food | Specialty Coffee | Brunch<br>
+                                <small>Carrer del Doctor Manuel Candela, 75</small>
+                                <span class="distance-info">12 min walk</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="note">
+                        <div class="note-title">🌟 Highly Recommended:</div>
+                        <strong>Samsha (CLOSEST!)</strong> - Only 3 minutes walk! Famous Mediterranean restaurant in Valencia with "out of this world" vegetarian dishes & creative European cuisine.<br>
+                        <strong>Maybean</strong> - 12 minutes walk with healthy vegetarian & vegan options, no refined sugars.
+                    </div>
+                </div>
+                
+                <div class="valencia-activity">
+                    <div class="valencia-activity-time">🕘 16:00 - 🕘 19:30</div>
+                    <div class="valencia-activity-title">🏛️ Explore Valencia Attractions</div>
+                    <div class="valencia-activity-description">Visit Oceanografic → Hemisferic → Fuente del Turia (fountain) → Torres de Serranos</div>
+                    
+                    <div style="background: #f0f0ff; border-left: 4px solid #7011F6; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <h4 style="color: #4D1D91; margin-bottom: 10px; font-size: 1.1rem;">🚌 Detailed Transport Routes:</h4>
+                        
+                        <div style="background: rgba(112, 17, 246, 0.1); padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #AB72FB;">
+                            <strong>1. Hotel → Oceanografic:</strong><br>
+                            Walk to "Cardenal Benlloch" bus stop → Board EMT bus Line C3 → Transfer at Mestre Racional to Line 95/23 → Alight at "Oceanogràfic" stop<br>
+                            <em>⏱️ Travel time: ~22 minutes</em>
+                        </div>
+                        
+                        <div style="background: rgba(112, 17, 246, 0.1); padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #AB72FB;">
+                            <strong>2. Oceanografic → Hemisferic:</strong><br>
+                            Walk 3—5 minutes within City of Arts and Sciences complex
+                        </div>
+                        
+                        <div style="background: rgba(112, 17, 246, 0.1); padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #AB72FB;">
+                            <strong>3. Hemisferic → Torres de Serranos:</strong><br>
+                            Return to "Oceanogràfic" bus stop → Board EMT Line 95 to "Guadalaviar - Sagunt"<br>
+                            <em>⏱️ Travel time: ~17—20 minutes</em>
+                        </div>
+                        
+                        <div style="background: rgba(112, 17, 246, 0.1); padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #AB72FB;">
+                            <strong>4. Torres de Serranos → Fuente del Turia:</strong><br>
+                            Short walk (5—10 minutes) through historic city center to Plaça de la Verge
+                        </div>
+                        
+                        <div style="background: #fff8e1; border: 2px solid #ffc107; border-radius: 8px; padding: 15px; margin: 15px 0;">
+                            <h5 style="color: #f57f17; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">🥤 Best Places for Traditional Valencia Drinks:</h5>
+                            <p><strong>🥛 Horchata:</strong> Horchatería Santa Catalina (Plaza de la Reina area) - The most famous and historic horchatería in Valencia, over 200 years old with traditional Valencian ceramic décor. Best horchata in the city!</p>
+                            <p><strong>🍹 Agua de Valencia:</strong> Café las Horas (city center) - Famous for this traditional Valencia cocktail made with orange juice, cava, and spirits</p>
+                            
+                            <div class="note">
+                                <div class="note-title">Access to Horchatería Santa Catalina:</div>
+                                From Torres de Serranos → Walk 8-10 minutes to Plaza de la Reina area → Located near Cathedral and Santa Catalina church bell tower
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(112, 17, 246, 0.1); padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #AB72FB;">
+                            <strong>5. Drinks & Evening → Atenea Sky Rooftop:</strong><br>
+                            From Fuente Del Turia area → <strong>Walking distance (10-15 minutes)</strong> to Plaza del Ayuntamiento for Atenea Sky Rooftop<br>
+                            <em>Alternative:</em> Board at "Pont de Fusta" or "Plaça de la Reina" bus stops → Take EMT bus lines 6, 9, or 10 → Arrive at Plaza del Ayuntamiento area
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="valencia-activity">
+                    <div class="valencia-activity-time">🕘 20:00</div>
+                    <div class="valencia-activity-title">🌃 Dinner at Atenea Sky ⭐ Rooftop</div>
+                    <div class="valencia-activity-description">Rooftop dining experience with city views</div>
+                    
+                    <div class="special-note">
+                        ⚠️ PREBOOKING REQUIRED - Make reservation in advance for rooftop dining
+                    </div>
+                </div>
+                
+                <div class="valencia-activity">
+                    <div class="valencia-activity-time">🕘 21:00</div>
+                    <div class="valencia-activity-title">🏨 Return to Hotel</div>
+                    <div class="valencia-activity-description">Head back to hotel for rest</div>
+                    
+                    <div style="background: #f0f0ff; border-left: 4px solid #7011F6; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <h4 style="color: #4D1D91; margin-bottom: 10px; font-size: 1.1rem;">🗺️ Route Map: Atenea Sky Rooftop → Silken Puerta Valencia</h4>
+                        
+                        <div style="background: rgba(112, 17, 246, 0.1); padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #AB72FB;">
+                            <strong>🚶‍♀️ Start:</strong> Exit Atenea Sky Rooftop, located near Plaza del Ayuntamiento.<br>
+                            <strong>🚶‍♀️ Walk:</strong> Head to the nearby Plaza del Ayuntamiento bus stop or Colón Metro Station (both under 5 minutes on foot).
+                        </div>
+                        
+                        <div style="background: rgba(112, 17, 246, 0.1); padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #AB72FB;">
+                            <strong>Option 1 — Bus:</strong><br>
+                            Board EMT Bus Line 4 at "Plaça de l'Ajuntament — Ateneu," direction Port - Eduard Boscá.<br>
+                            Ride about 6—8 minutes and alight at "Cardenal Benlloch (Parell) — Port."<br>
+                            Walk 2—3 minutes to Silken Puerta Valencia hotel, located just off this main avenue.
+                        </div>
+                        
+                        <div style="background: rgba(112, 17, 246, 0.1); padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #AB72FB;">
+                            <strong>Option 2 — Metro:</strong><br>
+                            Enter Colón Metro Station near the plaza.<br>
+                            Take Metro Line 5 toward Amado Granell — Montolivet.<br>
+                            Alight at "Amado Granell — Montolivet."<br>
+                            Walk about 5 minutes to the hotel entrance.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Day 8 -->
+            <div class="valencia-day-section">
+                <div class="valencia-day-header">
+                    📅 Day 8: Valencia Adventure | September 18th
+                </div>
+                
+                <div class="valencia-activity">
+                    <div class="valencia-activity-time">🕘 08:00 - 🕘 08:30</div>
+                    <div class="valencia-activity-title">🥐 Breakfast & Get Ready</div>
+                    <div class="valencia-activity-description">Start your day with a healthy breakfast within walking distance</div>
+                    
+                    <div class="restaurants">
+                        <h4>🍽️ Breakfast Options (Within 10 min walk):</h4>
+                        <ul>
+                            <li>Hotel Silken Puerta Valencia Restaurant<br>
+                                <small>In-house breakfast buffet (Opens 🕘 07:00)</small>
+                                <span class="distance-info">0 min walk</span>
+                            </li>
+                            <li>Café nearby (Mercado area)<br>
+                                <small>Local café 5 minutes from hotel</small>
+                                <span class="distance-info">5 min walk</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="note">
+                        <div class="note-title">🌟 Best Choice for Early Start:</div>
+                        Hotel breakfast buffet is perfect for your 🕘 08:45 departure. Maybean opens at 🕘 10:00 AM (too late). Hotel serves quality breakfast from 🕘 07:00 AM with continental and Spanish options.
+                    </div>
+                </div>
+                
+                <div class="highlight">
+                    <h3>🏊‍♀️ Valencia: Waterfalls and Thermal Springs Tour with Swimming</h3>
+                    <p><strong>📍 Meeting Point:</strong> Mestalla football stadium, gate A3, Aragon Av., Valencia</p>
+                    <p><strong>🕗 Meeting Time:</strong> 🕘 08:45 AM (Arrive by 8:45am)</p>
+                    <p><strong>🕘 Duration:</strong> 🕘 09:00 AM - 🕘 17:00 PM</p>
+                </div>
+                
+                <div class="valencia-activity">
+                    <div class="valencia-activity-time">🕘 08:45</div>
+                    <div class="valencia-activity-title">🚶‍♀️ Walk to Meeting Point</div>
+                    <div class="valencia-activity-description">Walk from hotel to Mestalla Stadium Gate A3</div>
+                    
+                    <div class="note">
+                        <div class="note-title">Walking Details:</div>
+                        <strong>📍 Distance:</strong> 1 km<br>
+                        <strong>⏱️ Walking Time:</strong> 15 minutes<br>
+                        <strong>🗺️ Route:</strong> Direct walkable route from hotel to stadium gate A3
+                    </div>
+                </div>
+                
+                <div class="valencia-activity">
+                    <div class="valencia-activity-time">🕘 17:30</div>
+                    <div class="valencia-activity-title">🏨 Return to Hotel</div>
+                    <div class="valencia-activity-description">Back to Hotel after the thermal springs tour</div>
+                </div>
+                
+                <div class="valencia-activity">
+                    <div class="valencia-activity-time">🕘 19:30</div>
+                    <div class="valencia-activity-title">🍽️ Dinner in Ruzafa Area</div>
+                    <div class="valencia-activity-description">Explore the trendy Ruzafa neighborhood for dinner</div>
+                    
+                    <div class="restaurants">
+                        <h4>🍽️ Ruzafa Restaurant Options (Walking distance from Russafa bus stop):</h4>
+                        <ul>
+                            <li>La Casa Viva Ruzafa <span class="distance-info">3 min walk</span></li>
+                            <li>BlueBell Coffee <span class="distance-info">5 min walk</span></li>
+                            <li>La Tasqueta del Mercat Ruzafa <span class="distance-info">4 min walk</span></li>
+                            <li>El Camerino Ruzafa <span class="distance-info">6 min walk</span></li>
+                            <li>El Rodamón de Russafa <span class="distance-info">3 min walk</span></li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #f0f0ff; border-left: 4px solid #7011F6; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <h4 style="color: #4D1D91; margin-bottom: 10px; font-size: 1.1rem;">🗺️ Route Map: Hotel Silken Puerta Valencia → Russafa Area</h4>
+                        
+                        <div style="background: rgba(112, 17, 246, 0.1); padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #AB72FB;">
+                            <strong>🏨 Start:</strong> Hotel Silken Puerta Valencia<br>
+                            <strong>🚶‍♀️ Walk:</strong> Walk to the nearest bus stop: "Cardenal Benlloch (Parell) — Port" (about 2 minutes on foot)
+                        </div>
+                        
+                        <div style="background: rgba(112, 17, 246, 0.1); padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #AB72FB;">
+                            <strong>Option 1 — Bus:</strong><br>
+                            Board EMT bus line 18 or 4, both of which head toward the Russafa district.<br>
+                            Get off at the "Russafa" bus stop (or at "Estació del Nord" for central access to Russafa).<br>
+                            Walk within Russafa to your desired location.
+                        </div>
+                        
+                        <div style="background: rgba(112, 17, 246, 0.1); padding: 10px; margin: 8px 0; border-radius: 5px; border-left: 3px solid #AB72FB;">
+                            <strong>Option 2 — Metro (Alternate Route):</strong><br>
+                            Walk to the "Facultats — Manuel Broseta" Metro station (approximately 8 minutes on foot).<br>
+                            Take Metrovalencia Line 5 or Line 7 heading south.<br>
+                            Get off at the "Russafa" Metro station (one stop away).<br>
+                            Walk to your destination in Russafa.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="valencia-activity">
+                    <div class="valencia-activity-time">🕘 21:00</div>
+                    <div class="valencia-activity-title">🏨 Return to Hotel</div>
+                    <div class="valencia-activity-description">Head back to hotel to rest</div>
+                </div>
+                
+                <div class="highlight">
+                    <h3>🚄 NEXT DAY</h3>
+                    <p>Train tickets to Madrid are already booked ✅ - Check your confirmation details for departure time and platform information</p>
+                </div>
+            </div>
+        
+            <div class="footer" style="font-size: 0.8rem; text-align: center; margin-bottom: 5px; color: #7f8c8d;">
+                <p style="margin-bottom: 5px;">🌟 Have an amazing solo adventure in Valencia, Neha! 🌟</p>
+                <p style="font-size: 0.7rem; margin-bottom: 5px;">Safe travels and enjoy every moment of your journey!</p>
+                <p style="font-size: 0.65rem; font-style: italic;">Remember to keep your Suma 10 metro card handy for easy transport around the city</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ibiza Detail Page -->
+    <div class="detail-page" id="ibizaDetail">
+        <button class="back-button" onclick="hideDestinationDetail()">← Back to Overview</button>
+        
+        <div class="detail-container">
+            <div class="ibiza-detail-header">
+                <h1>🏖️ Ibiza Adventure</h1>
+                <p>September 14-16, 2025</p>
+            </div>
+
+            <!-- Food Options Near Hotel Royal Plaza -->
+            <div class="valencia-day-section">
+                <div class="ibiza-day-header">🍽️ Food Options Near Hotel Royal Plaza</div>
+                
+                <div class="restaurants-section">
+                    <strong style="color: #667eea;">Nearest Dining Options:</strong><br>
+                    <div class="restaurant-list">
+                        <span class="restaurant-item veg">Simbiosis (5 min walk - veg/vegan)</span>
+                        <span class="restaurant-item">Marina Botafoch Restaurants (8 min walk)</span>
+                        <span class="restaurant-item">Babylon Beach Bar (10 min walk)</span>
+                        <span class="restaurant-item">Al Kilo (12 min walk)</span>
+                        <span class="restaurant-item">Coco's Bar and Kitchen (15 min walk)</span>
+                    </div>
+                    <div class="location-note">📍 All within easy walking distance from Hotel Royal Plaza - perfect for quick meals</div>
+                </div>
+            </div>
+
+            <!-- Day 1 -->
+            <div class="valencia-day-section">
+                <div class="ibiza-day-header">✈️ Day 1 - Barcelona to Ibiza</div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">5:30 AM</div>
+                    <div class="ibiza-activity-title">🏨 Check-out & Flight</div>
+                    <div class="ibiza-activity-detail"><strong>From:</strong> Som Nit Triomf → BCN Airport</div>
+                    <div class="ibiza-activity-detail"><strong>Flight:</strong> 8:45 AM Barcelona → 9:45 AM Ibiza</div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">11:00 AM</div>
+                    <div class="ibiza-activity-title">🏨 Hotel Check-in</div>
+                    <div class="ibiza-activity-detail"><strong>Hotel:</strong> Hotel Royal Plaza</div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">1:30 PM - 4:00 PM</div>
+                    <div class="ibiza-activity-title">🏰 Dalt Villa & Lunch</div>
+                    <div class="ibiza-activity-detail"><strong>Main Lunch:</strong> S'Escalinata Ibiza (15-minute walk from Hotel Royal Plaza)</div>
+                    
+                    <div class="route-section">
+                        <div class="route-title">🗺️ Hotel Royal Plaza → Dalt Villa</div>
+                        <div class="route-step">Walk to CETIS - Estación (10 min, 800m)</div>
+                        <div class="route-step">Board ALSA - L45a bus</div>
+                        <div class="route-step">Get off at Daltvila Convent</div>
+                        <div class="route-step">1-minute walk to Dalt Vila</div>
+                    </div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">4:00 PM</div>
+                    <div class="ibiza-activity-title">🚢 Departure for Boat Party</div>
+                    <div class="ibiza-activity-detail"><strong>Meeting Point:</strong> Carrer de La Punta, 2, 07800 Eivissa (Happiness Beach Ibiza)</div>
+                    <div class="warning-box">⏰ Reach at the ticketing counters 45 minutes before departure</div>
+                    
+                    <div class="route-section">
+                        <div class="route-title">🗺️ Dalt Vila → Happiness Beach Ibiza</div>
+                        <div class="route-step">Starting Point: Near Museo d'Art Contemporani d'Eivissa (Dalt Vila)</div>
+                        <div class="route-step">Walk to nearest bus stop at Plaça del Parque or Ibiza Port (5-7 minutes)</div>
+                        <div class="route-step">Bus: Line 45 toward coastal area near Happiness Beach</div>
+                        <div class="route-step">Drop-off: Stop closest to Carrer de La Punta (C. de s'Hort de sa Fruita)</div>
+                        <div class="route-step">Walk: 3-5 minutes to Carrer de La Punta, 2 (Happiness Beach Ibiza)</div>
+                    </div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">4:30 PM - 8:30 PM</div>
+                    <div class="ibiza-activity-title">🌅 Sunset Boat Party</div>
+                    <div class="ibiza-activity-detail"><strong>Venue:</strong> Ibiza Boat Club with Open Bar</div>
+                    <div class="ibiza-activity-detail"><strong>Duration:</strong> 4 hours</div>
+                    <div class="ibiza-activity-detail"><strong>End Time:</strong> 8:30 PM - Party ends</div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">9:00 PM</div>
+                    <div class="ibiza-activity-title">🍽️ Dinner</div>
+                    <div class="ibiza-activity-detail"><strong>Main Venue:</strong> La Torreta, Dalt Vila</div>
+                    
+                    <div class="route-section">
+                        <div class="route-title">🗺️ Boat Party → Hotel Royal Plaza</div>
+                        <div class="route-step">Walk: From Carrer de La Punta to bus stops on Av. Isidoro Macabich or Vara de Rey</div>
+                        <div class="route-step">Bus: Line 45 toward Ibiza Town</div>
+                        <div class="route-step">Drop-off: "Av. D'Isidor Macabich, 54" stop</div>
+                        <div class="route-step">Walk: 3 minutes to Hotel Royal Plaza</div>
+                    </div>
+
+                    <div class="route-section">
+                        <div class="route-title">🗺️ Hotel Royal Plaza → La Torreta (Dalt Villa)</div>
+                        <div class="route-step">Walk: 3 minutes to "Av. D'Isidor Macabich, 54" bus stop</div>
+                        <div class="route-step">Bus: L45a or L25A toward Dalt Villa</div>
+                        <div class="route-step">Drop-off: "Museu D'Art Contemporani" stop (closest to Dalt Vila)</div>
+                        <div class="route-step">Walk: 2 minutes to Portal de ses Taules (Dalt Vila entrance)</div>
+                        <div class="route-step">Walk: 3-5 minutes inside Dalt Vila to La Torreta restaurant</div>
+                    </div>
+
+                    <div class="route-section">
+                        <div class="route-title">🗺️ La Torreta → Hotel Royal Plaza (Return)</div>
+                        <div class="route-step">Walk: 5 minutes from La Torreta to "Museu D'Art Contemporani" bus stop</div>
+                        <div class="route-step">Bus: L25A or L45a toward Ibiza Town center</div>
+                        <div class="route-step">Drop-off: "Av. D'Isidor Macabich, 54" stop</div>
+                        <div class="route-step">Walk: 3 minutes to Hotel Royal Plaza</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 2 -->
+            <div class="valencia-day-section">
+                <div class="ibiza-day-header">🏖️ Day 2 - Beach & Club</div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">8:00 AM</div>
+                    <div class="ibiza-activity-title">🥞 Breakfast</div>
+                    <div class="ibiza-activity-detail"><strong>Location:</strong> Hotel Royal Plaza (included)</div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">11:00 AM - 1:00 PM</div>
+                    <div class="ibiza-activity-title">🏖️ Beach Time</div>
+                    <div class="ibiza-activity-detail"><strong>Beach:</strong> Platja de ses Figueretes</div>
+
+                    <div class="route-section">
+                        <div class="route-title">🗺️ Hotel Royal Plaza → Beach</div>
+                        <div class="route-step">Boarding Point: "Av. D'Isidor Macabich, 54" bus stop (3 minutes walk from hotel)</div>
+                        <div class="route-step">Bus: L10 or L25A heading towards Ses Figueretes</div>
+                        <div class="route-step">Drop-off: "Ses Figueretes" stop</div>
+                        <div class="route-step">Duration: 8-12 minute bus ride</div>
+                        <div class="route-step">Walk: 1 minute to Passeig ses Pitiüses beach area</div>
+                    </div>
+
+                    <div class="warning-box">🎒 <strong>Luggage Storage Note:</strong> No free lockers available at the beach. Paid options nearby include Easy Lockers Ibiza, Locker in the City Ibiza, and IBIZA SMART LOCKERS - all commercial facilities, not official beach amenities.</div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">1:30 PM - 4:00 PM</div>
+                    <div class="ibiza-activity-title">🍽️ Lunch Options</div>
+
+                    <div><strong style="color: #667eea;">Beachside Lunch 🏖️</strong></div>
+                    <div class="restaurants-section">
+                        <div class="restaurant-list">
+                            <span class="restaurant-item">Restaurante Ohana Ibiza (beachfront)</span>
+                            <span class="restaurant-item">Cremat Beach Ibiza (beachfront)</span>
+                        </div>
+                        <div class="location-note">📍 Located directly on Platja de ses Figueretes beach</div>
+                    </div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">5:00 PM</div>
+                    <div class="ibiza-activity-title">🏨 Return to Hotel</div>
+
+                    <div class="route-section">
+                        <div class="route-title">🗺️ Beach → Hotel Royal Plaza</div>
+                        <div class="route-step">Boarding Point: "Ses Figueretes" bus stop (1 minute walk from beach)</div>
+                        <div class="route-step">Bus: L10 or L25A toward Ibiza Town</div>
+                        <div class="route-step">Drop-off: "Av. D'Isidor Macabich, 54" stop</div>
+                        <div class="route-step">Walk: 3 minutes to Hotel Royal Plaza</div>
+                    </div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">6:30 PM</div>
+                    <div class="ibiza-activity-title">🎉 Ushuaia Club</div>
+
+                    <div class="route-section">
+                        <div class="route-title">🗺️ Hotel Royal Plaza → Ushuaia</div>
+                        <div class="route-step">Boarding Point: "Av. D'Isidor Macabich, 54" bus stop (3 minutes walk from hotel)</div>
+                        <div class="route-step">Bus: L14 toward Playa d'en Bossa</div>
+                        <div class="route-step">Drop-off: "Hotel Ushuaïa - Space" stop</div>
+                        <div class="route-step">Frequency: Every 30 minutes</div>
+                        <div class="route-step">Duration: 15-20 minutes</div>
+                    </div>
+
+                    <div class="route-section">
+                        <div class="route-title">🗺️ Return Route: Ushuaia → Hotel Royal Plaza</div>
+                        <div class="route-step">Boarding Point: "Hotel Ushuaïa - Space" bus stop (right outside club)</div>
+                        <div class="route-step">Bus: L14 toward Ibiza Town</div>
+                        <div class="route-step">Duration: 15-20 minutes ride</div>
+                        <div class="route-step">Drop-off: "Av. D'Isidor Macabich, 54" stop</div>
+                        <div class="route-step">Walk: 3 minutes to Hotel Royal Plaza</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 3 -->
+            <div class="valencia-day-section">
+                <div class="ibiza-day-header">🚢 Day 3 - Cruise & Cafes</div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">8:00 AM</div>
+                    <div class="ibiza-activity-title">🥞 Breakfast</div>
+                    <div class="ibiza-activity-detail"><strong>Location:</strong> Hotel Royal Plaza</div>
+                    <div class="ibiza-activity-detail"><strong>Note:</strong> Breakfast included in hotel package</div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">8:30 AM</div>
+                    <div class="ibiza-activity-title">🏨 Hotel Change</div>
+                    <div class="ibiza-activity-detail"><strong>Activity:</strong> Leave Hotel Royal Plaza</div>
+                    <div class="ibiza-activity-detail"><strong>New Hotel:</strong> Hotel Apartamentos Central City</div>
+                    <div class="ibiza-activity-detail"><strong>Arrival:</strong> Reach new hotel by 9:30 AM</div>
+                    <div class="ibiza-activity-detail"><strong>Transport:</strong> Check Uber or Taxi</div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">10:30 AM - 5:30 PM</div>
+                    <div class="ibiza-activity-title">🚢 Beach Hopping Cruise</div>
+                    <div class="ibiza-activity-detail"><strong>Location:</strong> Pg. de la Mar, S/N, 07820 San Antonio Abad, Islas Baleares</div>
+                    <div class="ibiza-activity-detail"><strong>Activity:</strong> Beach Hopping Cruise with Paddleboard, Food & Drinks</div>
+                    <div class="ibiza-activity-detail"><strong>Duration:</strong> 7 hours</div>
+                    <div class="ibiza-activity-detail"><strong>Distance:</strong> 10 minutes walking distance from hotel</div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">5:45 PM</div>
+                    <div class="ibiza-activity-title">🏨 Return to Hotel</div>
+                    <div class="ibiza-activity-detail"><strong>Activity:</strong> Post-activity return to Hotel Apartamentos Central City</div>
+                    <div class="ibiza-activity-detail"><strong>Distance:</strong> 10 minutes walking distance</div>
+                </div>
+
+                <div class="ibiza-activity">
+                    <div class="time-badge">7:00 PM</div>
+                    <div class="ibiza-activity-title">☕ Cafe Hopping</div>
+                    <div class="ibiza-activity-detail"><strong>Activity:</strong> Head towards cafes for evening exploration</div>
+                    <div class="ibiza-activity-detail"><strong>Distance:</strong> 10 minutes walking from hotel</div>
+
+                    <div class="restaurants-section">
+                        <strong style="color: #667eea;">Cafe & Restaurant Options:</strong><br>
+                        <div class="restaurant-list">
+                            <span class="restaurant-item">Cafe Del Mar (5 min walk from hotel)</span>
+                            <span class="restaurant-item">Cafe Mambo (8 min walk from hotel)</span>
+                            <span class="restaurant-item">Monkey Ibiza (10 min walk from hotel)</span>
+                            <span class="restaurant-item">Cala Gracioneta Beach/Restro (15 min walk)</span>
+                            <span class="restaurant-item">Es Paradis (12 min walk - Optional)</span>
+                        </div>
+                        <div class="location-note">📍 San Antonio area - famous sunset strip cafes within walking distance from Hotel Central City</div>
+                    </div>
+                    <div class="warning-box">Note: Visit Cala Gracioneta Beach/Restro and Es Paradis only if time permits</div>
+                </div>
+            </div>
+
+            <!-- Bus Stops Guide -->
+            <div class="bus-stops-section">
+                <div class="ibiza-day-header">🚌 Nearest Bus Stops Guide</div>
+                
+                <div class="two-column">
+                    <div class="column">
+                        <div class="bus-stop">
+                            <div class="bus-stop-title">🏨 Hotel Royal Plaza</div>
+                            <div class="bus-stop-detail"><strong>Bus Stop:</strong> "Av. D'Isidor Macabich, 54"</div>
+                            <div class="bus-stop-detail"><strong>Distance:</strong> 3 min walk</div>
+                            <div class="bus-stop-detail"><strong>Lines:</strong> L10, L14, L25A</div>
+                        </div>
+
+                        <div class="bus-stop">
+                            <div class="bus-stop-title">🏨 Aparthotel Central City</div>
+                            <div class="bus-stop-detail"><strong>Bus Stop:</strong> "San Antonio Center"</div>
+                            <div class="bus-stop-detail"><strong>Distance:</strong> 2 min walk</div>
+                            <div class="bus-stop-detail"><strong>Lines:</strong> L10, L3, L34</div>
+                        </div>
+
+                        <div class="bus-stop">
+                            <div class="bus-stop-title">🏖️ Figueretes Beach</div>
+                            <div class="bus-stop-detail"><strong>Bus Stop:</strong> "Ses Figueretes"</div>
+                            <div class="bus-stop-detail"><strong>Distance:</strong> 1 min walk to beach</div>
+                            <div class="bus-stop-detail"><strong>Lines:</strong> L10, L25A</div>
+                        </div>
+                    </div>
+                    
+                    <div class="column">
+                        <div class="bus-stop">
+                            <div class="bus-stop-title">🎉 Ushuaia Club</div>
+                            <div class="bus-stop-detail"><strong>Bus Stop:</strong> "Hotel Ushuaïa - Space"</div>
+                            <div class="bus-stop-detail"><strong>Distance:</strong> Right outside club</div>
+                            <div class="bus-stop-detail"><strong>Lines:</strong> L14</div>
+                        </div>
+
+                        <div class="bus-stop">
+                            <div class="bus-stop-title">🚢 Happiness Beach Club</div>
+                            <div class="bus-stop-detail"><strong>Bus Stop:</strong> "C. de s'Hort de sa Fruita"</div>
+                            <div class="bus-stop-detail"><strong>Distance:</strong> 5 min walk to meeting point</div>
+                            <div class="bus-stop-detail"><strong>Lines:</strong> Line 45</div>
+                        </div>
+
+                        <div class="bus-stop">
+                            <div class="bus-stop-title">🏰 Dalt Villa</div>
+                            <div class="bus-stop-detail"><strong>Bus Stop:</strong> "Museu D'Art Contemporani"</div>
+                            <div class="bus-stop-detail"><strong>Distance:</strong> 2 min walk to entrance</div>
+                            <div class="bus-stop-detail"><strong>Lines:</strong> L45a, L25A</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Safety Section -->
+            <div class="safety-section">
+                <div class="ibiza-day-header">🛡️ Solo Female Traveler Safety</div>
+                <div class="two-column">
+                    <div class="column">
+                        <div class="safety-tip">Save emergency contacts (112) in phone</div>
+                        <div class="safety-tip">Download offline maps & screenshots</div>
+                        <div class="safety-tip">Keep cash for backup transport</div>
+                    </div>
+                    <div class="column">
+                        <div class="safety-tip">Inform hotel about evening plans</div>
+                        <div class="safety-tip">Use well-lit stops & populated areas</div>
+                        <div class="safety-tip">Share location with trusted contacts</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <h3>¡Buen Viaje, Neha!</h3>
+                <p>Enjoy your Ibiza solo adventure!</p>
+                <div class="curated">Curated with ❤️ by Rimigo<br>Your trusted travel companion</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Madrid Detail Page -->
+    <div class="detail-page" id="madridDetail">
+        <button class="back-button" onclick="hideDestinationDetail()">← Back to Overview</button>
+        
+        <div class="detail-container">
+            <div class="madrid-detail-header">
+                <div class="plane-icon">✈️</div>
+                <h1>Madrid Travel Itinerary</h1>
+                <p>Days 9-11 | Valencia to Madrid & Exploration</p>
+            </div>
+
+            <div class="madrid-day-section">
+                <div class="madrid-day-header">🌅 DAY 9 - VALENCIA TO MADRID (19 September)</div>
+                <div class="madrid-day-content">
+                    
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">11:30 - 15:30</div>
+                        <div class="madrid-activity-title">Travel & Check-In</div>
+                        <div class="madrid-activity-details">
+                            • Check out Valencia hotel (11:30)<br>
+                            • Train: Valencia → Madrid (12:27 - 14:23)<br>
+                            • Check-in at Luz Madrid Hotel (15:30)
+                        </div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">16:30</div>
+                        <div class="madrid-activity-title">Riu Plaza - 360° Rooftop Bar</div>
+                        <div class="madrid-activity-details">
+                            <div class="route-box">
+                                <div class="route-title">Route from Luz Madrid Hotel</div>
+                                <strong>Option 1:</strong> Direct walk <span class="distance-badge">1.2km - 15 mins</span><br>
+                                <strong>Option 2:</strong> Metro - Walk to Opera station (2 mins) → Red Line to Noviciado (1 stop) → 5 min walk <span class="distance-badge">12 mins total</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">18:00 - 20:00</div>
+                        <div class="madrid-activity-title">Templo de Debod</div>
+                        <div class="madrid-activity-details">
+                            <div class="route-box">
+                                <div class="route-title">Route from Riu Plaza</div>
+                                <strong>Walking:</strong> <span class="distance-badge">1.0km - 12 mins</span><br>
+                                <strong>Bus:</strong> Line 74 from Plaza de España → Templo de Debod <span class="distance-badge">8 mins</span><br>
+                                Frequency: Every 20 minutes
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">20:30</div>
+                        <div class="madrid-activity-title">Dinner Near Templo de Debod</div>
+                        <div class="madrid-activity-details">
+                            <div class="restaurant-grid">
+                                <div class="restaurant-card">
+                                    <div class="restaurant-name">Punto Vegano</div>
+                                    <div class="restaurant-details">300m from temple<br>Menu del día: €12.90<br>Excellent vegan options</div>
+                                </div>
+                                <div class="restaurant-card">
+                                    <div class="restaurant-name">Küche</div>
+                                    <div class="restaurant-details">500m from temple<br>Vegetarian barbecue<br>Family-friendly</div>
+                                </div>
+                                <div class="restaurant-card">
+                                    <div class="restaurant-name">Excalibur Madrid</div>
+                                    <div class="restaurant-details">400m from temple<br>Vegetarian menu<br>Terrace seating</div>
+                                </div>
+                                <div class="restaurant-card">
+                                    <div class="restaurant-name">Krüger</div>
+                                    <div class="restaurant-details">600m from temple<br>Gluten-free options<br>Great reviews</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">22:00</div>
+                        <div class="madrid-activity-title">Flamenco Show</div>
+                        <div class="madrid-activity-details">
+                            <strong>Venue:</strong> Calle del Pez, 10, 28004 Madrid<br>
+                            Arrive at 10 PM for show
+                            <div class="route-box">
+                                <div class="route-title">Route from Templo de Debod <span class="distance-badge">2.1km - 25 mins</span></div>
+                                • Walk to Plaza de España Metro (400m - 5 mins)<br>
+                                • Line 3 to Callao (1 stop - 2 mins)<br>
+                                • Transfer to Line 5 to Gran Vía (1 stop - 2 mins)<br>
+                                • Walk to Calle del Pez (650m - 8 mins)<br>
+                                <div class="metro-badge">Line 3</div><div class="metro-badge">Line 5</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="madrid-day-section">
+                <div class="madrid-day-header">🏛️ DAY 10 - MADRID EXPLORATION (20 September)</div>
+                <div class="madrid-day-content">
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">08:00</div>
+                        <div class="madrid-activity-title">Breakfast</div>
+                        <div class="madrid-activity-details">
+                            <div class="options-list">
+                                <strong>Breakfast Options:</strong>
+                                <ul>
+                                    <li><strong>Hotel breakfast</strong> - Available at accommodation</li>
+                                    <li><strong>Local cafés</strong> - Near Luz Madrid Hotel area</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">10:00 - 14:00</div>
+                        <div class="madrid-activity-title">Gran Vía - Shopping & Exploration</div>
+                        <div class="madrid-activity-details">
+                            <div class="route-box">
+                                <div class="route-title">Route from Luz Madrid Hotel <span class="distance-badge">1.5km</span></div>
+                                <strong>Metro:</strong> Walk to San Bernardo (3 mins) → Line 2 to Santo Domingo/Callao (2-3 stops) <span class="distance-badge">15 mins total</span><br>
+                                <strong>Bus:</strong> Bus 002 from Conde Duque <span class="distance-badge">18 mins</span>
+                            </div>
+                            <div class="options-list">
+                                <strong>Vegetarian Restaurants Near Luz Madrid Hotel (Within 10 mins walk):</strong>
+                                <ul>
+                                    <li><strong>Sanissimo Opera</strong> - C. de Campomanes, 5 (2 min walk) | 100% Vegan restaurant near Royal Palace</li>
+                                    <li><strong>Yerbabuena</strong> - Calle de los Bordadores, 3 (5 min walk) | Vegetarian cuisine with many vegan options near Plaza Mayor</li>
+                                    <li><strong>La Hummuseria</strong> - Calle de Hernán Cortés, 8 (8 min walk) | Middle Eastern vegetarian with fresh hummus</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="options-list">
+                                <strong>Original Options:</strong>
+                                <ul>
+                                    <li>HonestGreens - Healthy chains</li>
+                                    <li>Superchulo - Vegetarian friendly</li>
+                                    <li>Trattoria Pulcinella - Italian options</li>
+                                    <li>La Cúpula (Palace Hotel) - Upscale dining</li>
+                                    <li>Curry Masala - Indian restaurant</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">14:30</div>
+                        <div class="madrid-activity-title">Hotel Break</div>
+                        <div class="madrid-activity-details">Return to hotel, drop shopping items</div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">15:30 - 16:30</div>
+                        <div class="madrid-activity-title">Retiro Park</div>
+                        <div class="madrid-activity-details">
+                            <div class="route-box">
+                                <div class="route-title">Route from Gran Vía <span class="distance-badge">2.2km</span></div>
+                                <strong>Best Option - Bus:</strong> Line 2 from Gran Vía-Montera → Puerta de Alcalá-Retiro <span class="distance-badge">8 mins</span><br>
+                                <strong>Metro Alternative:</strong> Gran Vía → Line 1 to Sol → Line 2 to Retiro <span class="distance-badge">12 mins</span><br>
+                                <div class="metro-badge">Bus Line 2</div><div class="metro-badge">Metro L1+L2</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">17:00</div>
+                        <div class="madrid-activity-title">Royal Palace of Madrid</div>
+                        <div class="madrid-activity-details">
+                            <div class="route-box">
+                                <div class="route-title">Route from Retiro Park <span class="distance-badge">2.8km</span></div>
+                                • From Retiro Metro: Line 2 (Red) towards Cuatro Caminos<br>
+                                • Get off at Opera station <span class="distance-badge">6 mins</span><br>
+                                • Walk to Royal Palace <span class="distance-badge">400m - 5 mins</span><br>
+                                <strong>Total time:</strong> 11 minutes
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">18:45</div>
+                        <div class="madrid-activity-title">Walking Tour Meeting Point</div>
+                        <div class="madrid-activity-details">
+                            <strong>Location:</strong> Opera, Centro, 28013 Madrid<br>
+                            <div class="route-box">
+                                <div class="route-title">Route from Royal Palace <span class="distance-badge">300m - 4 mins</span></div>
+                                Walking distance from Royal Palace to Opera area<br>
+                                The meeting point is in the same vicinity as the palace
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">19:00 - 20:30</div>
+                        <div class="madrid-activity-title">Madrid Walking Tour</div>
+                        <div class="madrid-activity-details">Evening guided walking tour starting from Opera Centro</div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">20:30 - 21:30</div>
+                        <div class="madrid-activity-title">Dinner Near Hotel</div>
+                        <div class="madrid-activity-details">
+                            <div class="dinner-options">
+                                <div class="dinner-title">VEGETARIAN DINNER OPTIONS (Within 10 mins walk)</div>
+                                <div class="restaurant-grid">
+                                    <div class="restaurant-card">
+                                        <div class="restaurant-name">Sanissimo Opera</div>
+                                        <div class="restaurant-details">Calle Campomanes, 5<br>2 min walk from hotel<br>Vegetarian specialist</div>
+                                    </div>
+                                    <div class="restaurant-card">
+                                        <div class="restaurant-name">Rangoli Indian</div>
+                                        <div class="restaurant-details">Original option<br>Indian cuisine<br>Vegetarian dishes</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">22:00</div>
+                        <div class="madrid-activity-title">Hotel Preparation</div>
+                        <div class="madrid-activity-details">Return to hotel, pack everything, prepare for late night</div>
+                    </div>
+
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">23:45</div>
+                        <div class="madrid-activity-title">Istar Club</div>
+                        <div class="madrid-activity-details">
+                            <strong>Address:</strong> Calle de Serrano, 41, Madrid
+                            <div class="route-box">
+                                <div class="route-title">Route from Luz Madrid Hotel <span class="distance-badge">4.2km</span></div>
+                                <strong>Best Route:</strong><br>
+                                • Walk to Noviciado Metro (8 mins) → closest to Istar area<br>
+                                • Noviciado is 1 min walk from Istar Club <span class="distance-badge">15 mins total</span><br><br>
+                                <strong>Alternative:</strong><br>
+                                • Opera → Line 2 to Sol → Line 1 to Serrano <span class="distance-badge">20 mins</span><br>
+                                <div class="metro-badge">Noviciado</div><div class="metro-badge">Line 1 & 2</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="madrid-day-section">
+                <div class="madrid-day-header">✈️ DAY 11 - DEPARTURE (21 September)</div>
+                <div class="madrid-day-content">
+                    <div class="madrid-activity">
+                        <div class="madrid-activity-time">03:30</div>
+                        <div class="madrid-activity-title">Airport Transfer & Departure</div>
+                        <div class="madrid-activity-details">
+                            • Check out from Luz Madrid Hotel<br>
+                            • Transfer to Madrid-Barajas Airport<br>
+                            • Return flight to India
+                            <div class="route-box">
+                                <div class="route-title">Hotel to Airport <span class="distance-badge">15km - 45 mins</span></div>
+                                <strong>Options:</strong><br>
+                                • Pre-booked taxi/transfer service (recommended)<br>
+                                • Metro: Opera → Line 6 to Nuevos Ministerios → Line 8 to Airport<br>
+                                • Airport Express Bus from nearby stops
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <h3>¡Buen Viaje, Neha!</h3>
+                <p>Enjoy your Madrid solo adventure!</p>
+                <div class="curated">Curated with ❤️ by Rimigo<br>Your trusted travel companion</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const menuOverlay = document.getElementById('menuOverlay');
+            const hamburger = document.querySelector('.hamburger');
+            const spans = hamburger.querySelectorAll('span');
+            
+            if (menuOverlay.classList.contains('active')) {
+                closeMenu();
+            } else {
+                menuOverlay.classList.add('active');
+                hamburger.classList.add('active');
+                
+                // Animate hamburger to X
+                spans.forEach((span, index) => {
+                    setTimeout(() => {
+                        if (index === 0) span.style.transform = 'rotate(45deg) translate(6px, 6px)';
+                        else if (index === 1) span.style.opacity = '0';
+                        else if (index === 2) span.style.transform = 'rotate(-45deg) translate(6px, -6px)';
+                    }, index * 50);
+                });
+            }
+        }
+
+        function closeMenu() {
+            const menuOverlay = document.getElementById('menuOverlay');
+            const hamburger = document.querySelector('.hamburger');
+            const spans = hamburger.querySelectorAll('span');
+            
+            menuOverlay.classList.remove('active');
+            hamburger.classList.remove('active');
+            
+            // Reset hamburger animation
+            spans.forEach((span, index) => {
+                setTimeout(() => {
+                    span.style.transform = 'rotate(0deg) translate(0px, 0px)';
+                    span.style.opacity = '1';
+                }, index * 50);
+            });
+            
+            // Close any open submenus
+            const submenus = document.querySelectorAll('.submenu');
+            submenus.forEach(submenu => {
+                submenu.classList.remove('active');
+            });
+        }
+
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            const isCurrentlyActive = submenu.classList.contains('active');
+            
+            // Close all submenus
+            const allSubmenus = document.querySelectorAll('.submenu');
+            allSubmenus.forEach(menu => {
+                menu.classList.remove('active');
+            });
+            
+            // Toggle the clicked submenu
+            if (!isCurrentlyActive) {
+                submenu.classList.add('active');
+            }
+        }
+
+        function showHotelVoucher(hotelId) {
+            const voucherElement = document.getElementById(hotelId + 'Voucher');
+            const menuOverlay = document.getElementById('menuOverlay');
+            
+            if (voucherElement) {
+                // Hide menu
+                closeMenu();
+                
+                // Show voucher
+                setTimeout(() => {
+                    voucherElement.classList.add('active');
+                    voucherElement.scrollTop = 0;
+                }, 300);
+            }
+        }
+
+        function hideHotelVoucher() {
+            const vouchers = document.querySelectorAll('.hotel-voucher');
+            vouchers.forEach(voucher => {
+                voucher.classList.remove('active');
+            });
+        }
+
+        function showDestinationDetail(destination) {
+            const mainPage = document.getElementById('mainPage');
+            const detailPages = {
+                'Barcelona': document.getElementById('barcelonaDetail'),
+                'Valencia': document.getElementById('valenciaDetail'),
+                'Ibiza': document.getElementById('ibizaDetail'),
+                'Madrid': document.getElementById('madridDetail')
+            };
+            
+            // Hide main page
+            mainPage.style.display = 'none';
+            
+            // Show selected destination detail
+            const targetDetail = detailPages[destination];
+            if (targetDetail) {
+                targetDetail.classList.add('active');
+                targetDetail.scrollTop = 0;
+            }
+        }
+
+        function hideDestinationDetail() {
+            const mainPage = document.getElementById('mainPage');
+            const detailPages = document.querySelectorAll('.detail-page');
+            
+            // Hide all detail pages
+            detailPages.forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show main page
+            mainPage.style.display = 'flex';
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menuOverlay = document.getElementById('menuOverlay');
+            const hamburger = document.querySelector('.hamburger');
+            
+            if (menuOverlay.classList.contains('active') && 
+                !event.target.closest('.menu-content') && 
+                !event.target.closest('.hamburger')) {
+                closeMenu();
+            }
+        });
+
+        // Add some interactive sparkle effect on mouse move
+        document.addEventListener('mousemove', (e) => {
+            // Only add sparkles on the main page, not the detail pages
+            if (!document.querySelector('.detail-page.active') && 
+                !document.querySelector('.hotel-voucher.active') && 
+                !document.getElementById('menuOverlay').classList.contains('active')) {
+                const sparkle = document.createElement('div');
+                sparkle.style.position = 'fixed';
+                sparkle.style.left = e.clientX + 'px';
+                sparkle.style.top = e.clientY + 'px';
+                sparkle.style.width = '4px';
+                sparkle.style.height = '4px';
+                sparkle.style.background = 'rgba(255, 255, 255, 0.6)';
+                sparkle.style.borderRadius = '50%';
+                sparkle.style.pointerEvents = 'none';
+                sparkle.style.zIndex = '1000';
+                sparkle.style.animation = 'sparkle 1s ease-out forwards';
+                
+                document.body.appendChild(sparkle);
+                
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 1000);
+            }
+        });
+
+        // Add sparkle animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes sparkle {
+                0% {
+                    opacity: 1;
+                    transform: scale(0);
+                }
+                50% {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+                100% {
+                    opacity: 0;
+                    transform: scale(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
